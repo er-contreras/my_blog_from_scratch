@@ -23,9 +23,9 @@ class HttpServer
     request = client.gets
 
     case request
-    when /GET \//
+    when %r{GET /}
       send_response(client, 200, HTML_CONTENT, 'text/html')
-    when /POST \/create_rider/
+    when %r{POST /create_rider}
       process_post_request(client)
     else
       send_response(client, 404, 'Not Found', 'text/plain')
@@ -43,7 +43,7 @@ class HttpServer
     rider = Rider.new(name, age)
 
     # Generating rider details HTML
-    rider_details = "<html><body><h1>Rider Details</h1>" \
+    rider_details = '<html><body><h1>Rider Details</h1>' \
       "<p>Name: #{rider.name}</p>" \
       "<p>Age: #{rider.age}</p></body></html>"
 
@@ -54,6 +54,7 @@ class HttpServer
     headers = {}
     while (line = client.gets&.chomp)
       break if line.empty?
+
       parts = line.split(': ')
       headers[parts[0]] = parts[1] if parts.length == 2
     end
