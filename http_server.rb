@@ -20,17 +20,25 @@ class HttpServer
   private
 
   def handle_request(client)
-    request = client.gets
+    request_line = client.gets
 
-    case request
-    when %r{GET /}
-      send_response(client, 200, HTML_CONTENT, 'text/html')
-    when %r{POST /create_rider}
-      process_post_request(client)
+    unless request_line
+      send_response(client, 400, 'Bad Request', 'text/plain')
+      return
+    end
+
+    method, path, http_version = request_line.split
+
+    case method
+    when 'GET'
+      handle_get_request(client, path)
+    when 'POST'
+      handle_post_request(client, path)
     else
-      send_response(client, 404, 'Not Found', 'text/plain')
+      send_response(client, 405, 'Method Not Allowed', 'text/plain')
     end
   end
+
 
   def process_post_request(client)
     # Parsing form data from POST body
@@ -69,6 +77,26 @@ class HttpServer
                   "Content-Length: #{body.bytesize}\r\n" \
                   "Connection: close\r\n\r\n" \
                   "#{body}"
+  end
+
+  def handle_get_request(client, path)
+    case path
+    when '/'
+      send_response(client, 200, HTML_CONTENT, 'text/html')
+    when '/contact'
+      send_response(client, 200, 'Contact Us', 'text/plain')
+    else
+      send_response(client, 404, 'Not Found', 'text/plain')
+    end
+  end
+
+  def handle_post_request(client, path)
+    case path
+    when '/create_rider'
+      process_post_request(client)
+    else
+      send_response(client, 404, 'Not Found', 'text/plain')
+    end
   end
 end
 
