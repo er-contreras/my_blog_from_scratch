@@ -1,3 +1,4 @@
 # ignore idea files
 .idea
 my_blog_from_scratch.iml
+.ruby-lsp
